@@ -6,6 +6,7 @@ const authRoutes = require("./routes/auth");
 const postsRoutes = require("./routes/posts");
 const categoriesRoutes = require("./routes/categories");
 
+
 const app = express();
 
 app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form>
