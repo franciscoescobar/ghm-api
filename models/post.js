@@ -3,17 +3,17 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const postSchema = new Schema({
-    title: {
+    name: {
         type: String,
         required: true
     },
-    imageUrl: {
+    src: {
         type: String,
         required: true
     },
     metadata: {
         type: Object,
-        required: true
+        required: false
     },
     tags: [
         {
@@ -21,12 +21,7 @@ const postSchema = new Schema({
             ref: 'Category',
             required: true
         }
-    ],
-    creator: {
-        type:Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    }
+    ]
 });
 
 module.exports = mongoose.model('Post', postSchema);
