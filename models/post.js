@@ -19,7 +19,7 @@ const postSchema = new Schema({
         {
             type: Schema.Types.ObjectId,
             ref: 'Category',
-            required: true
+            required: false
         }
     ]
 });

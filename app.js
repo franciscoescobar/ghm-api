@@ -1,15 +1,18 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const path = require("path");
 
 const authRoutes = require("./routes/auth");
 const postsRoutes = require("./routes/posts");
 const categoriesRoutes = require("./routes/categories");
 
+
 const app = express();
 
-// app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form>
+// app.use(bodyParser.urlencoded({extended: false})); // x-www-form-urlencoded <form>
 app.use(bodyParser.json()); // application/json
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");

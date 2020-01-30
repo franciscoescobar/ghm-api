@@ -5,7 +5,7 @@ const User = require("../models/user");
 
 exports.getPosts = async (req, res, next) => {
   const currentPage = req.query.page || 1;
-  const perPage = 10;
+  const perPage = 5;
   try {
     const totalItems = await Post.find().countDocuments();
     const posts = await Post.find()
@@ -35,22 +35,20 @@ exports.createPost = async (req, res, next) => {
     error.statusCode = 422;
     throw error;
   }
-  const imageUrl = req.file.path;
-  const title = req.body.title;
-  const tags = req.body.tags;
+  const src = req.file.location;
+  const name = req.body.name;
 
   const post = new Post({
-    title,
-    tags,
-    imageUrl
+    name,
+    src
   });
   try {
-    const user = User.findById(req.userId);
-    if (user.role !== "admin") {
-      const error = new Error("You are not an administrator");
-      error.statusCode = 401;
-      throw error;
-    }
+    // const user = User.findById(req.userId);
+    // if (user.role !== "admin") {
+    //   const error = new Error("You are not an administrator");
+    //   error.statusCode = 401;
+    //   throw error;
+    // }
     await post.save();
     res.status(201).json({
       message: "Post created successfully!",
