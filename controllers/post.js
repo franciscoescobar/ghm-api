@@ -37,10 +37,11 @@ exports.createPost = async (req, res, next) => {
   }
   const src = req.file.location;
   const name = req.body.name;
-
+  const tags = JSON.parse(req.body.tags);
   const post = new Post({
     name,
-    src
+    src,
+    tags
   });
   try {
     // const user = User.findById(req.userId);
