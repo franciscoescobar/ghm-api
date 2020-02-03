@@ -13,9 +13,6 @@ exports.getPosts = async (req, res, next) => {
       .skip((currentPage - 1) * perPage)
       .limit(perPage);
 
-    var params = {Bucket: 'ghm-gallery', Key: `${posts[0].src}`, Expires: 60};
-    var url = s3.getSignedUrl('getObject', params);
-    console.log('The URL is', url); // expires in 60 seconds
     res.status(200).json({
       message: "Posts fetched successfully",
       posts,

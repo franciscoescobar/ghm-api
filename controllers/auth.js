@@ -28,6 +28,7 @@ exports.login = async (req, res, next) => {
         res.status(200).json({
             token, 
             userId:user._id.toString(),
+            login: true,
             role: user.role
         });
     }
