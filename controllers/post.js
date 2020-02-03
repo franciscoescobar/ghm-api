@@ -6,11 +6,16 @@ const User = require("../models/user");
 exports.getPosts = async (req, res, next) => {
   const currentPage = req.query.page || 1;
   const perPage = 5;
+
   try {
     const totalItems = await Post.find().countDocuments();
     const posts = await Post.find()
       .skip((currentPage - 1) * perPage)
       .limit(perPage);
+
+    var params = {Bucket: 'ghm-gallery', Key: `${posts[0].src}`, Expires: 60};
+    var url = s3.getSignedUrl('getObject', params);
+    console.log('The URL is', url); // expires in 60 seconds
     res.status(200).json({
       message: "Posts fetched successfully",
       posts,

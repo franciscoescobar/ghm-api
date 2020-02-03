@@ -47,13 +47,11 @@ exports.signup = async (req, res, next) => {
         throw error;
     }
     const email = req.body.email;
-    const name = req.body.name;
     const password = req.body.password;
     try {
         const hashedPassword = await bcrypt.hash(password, 12);
         const user = new User({
             email,
-            name,
             role: "user",
             password: hashedPassword
         });
