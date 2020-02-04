@@ -1,7 +1,7 @@
 const { validationResult } = require("express-validator");
-
 const Post = require("../models/post");
 const User = require("../models/user");
+const getDownloadUrl = require("../utils/preSignedUrl");
 
 exports.getPosts = async (req, res, next) => {
   const currentPage = req.query.page || 1;
@@ -12,12 +12,19 @@ exports.getPosts = async (req, res, next) => {
     const posts = await Post.find()
       .skip((currentPage - 1) * perPage)
       .limit(perPage);
-
+    const newPosts = await Promise.all(
+      posts.map(async post => {
+        const newUrl = await getDownloadUrl(post.src);
+        post.src = newUrl;
+        return post;
+      })
+    );
     res.status(200).json({
       message: "Posts fetched successfully",
-      posts,
+      posts: newPosts,
       totalItems
     });
+
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
