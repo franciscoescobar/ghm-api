@@ -1,7 +1,10 @@
 const { validationResult } = require("express-validator");
+
 const Post = require("../models/post");
 const User = require("../models/user");
+
 const getDownloadUrl = require("../utils/preSignedUrl");
+const {reduceQuality} = require("../utils/processImage");
 
 exports.getPosts = async (req, res, next) => {
   const currentPage = req.query.page || 1;
@@ -44,12 +47,21 @@ exports.createPost = async (req, res, next) => {
     error.statusCode = 422;
     throw error;
   }
-  const src = req.file.location;
   const name = req.body.name;
   const tags = JSON.parse(req.body.tags);
+  const src = req.file.location;
+  const newUrl = await getDownloadUrl(src);
+  const lowSrc = await reduceQuality(newUrl, req.file.key);
+  const newLowSrc = await getDownloadUrl(lowSrc);
+
+  console.log(src, newUrl, lowSrc, newLowSrc);
+
   const post = new Post({
     name,
-    src,
+    src: src,
+    signedUrl: newUrl,
+    lowSrc: lowSrc,
+    signedLowUrl: newLowSrc,
     tags
   });
   try {

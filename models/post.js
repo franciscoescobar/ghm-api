@@ -11,6 +11,18 @@ const postSchema = new Schema({
         type: String,
         required: true
     },
+    signedSrc: {
+        type: String,
+        required: false,
+    },
+    lowSrc: {
+        type: String,
+        required: true
+    },
+    signedLowSrc: {
+        type: String,
+        required: false
+    },
     metadata: {
         type: Object,
         required: false

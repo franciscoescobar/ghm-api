@@ -12,17 +12,17 @@ const app = express();
 
 // app.use(bodyParser.urlencoded({extended: false})); // x-www-form-urlencoded <form>
 app.use(bodyParser.json()); // application/json
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Methods",
     "OPTIONS, GET, POST, PUT, PATCH, DELETE"
-  );
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  next();
-});
+    );
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    next();
+  });
+app.use('/exported-images', express.static(path.join(__dirname, 'images-lowres')));
 
 app.use(authRoutes);
 app.use(postsRoutes);
