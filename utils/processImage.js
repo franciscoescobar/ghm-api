@@ -35,6 +35,14 @@ const reduceQuality = (imageUrl, imageName) => {
                         throw err;
                     }
                     console.log(`File uploaded successfully. ${data.Location}`);
+                    fs.unlink(`images-lowres/${imageName}`, (err) => {
+                        if (err) {
+                          console.error(err)
+                          return
+                        }
+                        console.log("Local image deleted successfully");
+                        //file removed
+                    });
                 });
             });
             
