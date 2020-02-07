@@ -17,8 +17,8 @@ exports.getPosts = async (req, res, next) => {
       .limit(perPage);
     const newPosts = await Promise.all(
       posts.map(async post => {
-        const newUrl = await getDownloadUrl(post.src);
-        post.src = newUrl;
+        const newUrl = await getDownloadUrl(post.lowSrc);
+        post.signedLowSrc = newUrl;
         return post;
       })
     );
@@ -54,14 +54,13 @@ exports.createPost = async (req, res, next) => {
   const lowSrc = await reduceQuality(newUrl, req.file.key);
   const newLowSrc = await getDownloadUrl(lowSrc);
 
-  console.log(src, newUrl, lowSrc, newLowSrc);
 
   const post = new Post({
     name,
     src: src,
-    signedUrl: newUrl,
+    signedSrc: newUrl,
     lowSrc: lowSrc,
-    signedLowUrl: newLowSrc,
+    signedLowSrc: newLowSrc,
     tags
   });
   try {
