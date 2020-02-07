@@ -25,12 +25,12 @@ exports.createCategory = async (req, res, next) => {
     const category = new Category();
     category.name = req.body.name;
     try {
-        // const user = User.findById(req.userId);
-        // if (user.role !== "admin") {
-        //   const error = new Error("You are not an administrator");
-        //   error.statusCode = 401;
-        //   throw error;
-        // }
+        const user = User.findById(req.userId);
+        if (user.role !== "admin") {
+          const error = new Error("You are not an administrator");
+          error.statusCode = 401;
+          throw error;
+        }
         await category.save();
         res.status(201).json({
             message: "Post created successfully!",

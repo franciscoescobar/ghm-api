@@ -41,29 +41,3 @@ async function getDownloadUrl (key) {
         throw err
     }
 }
-
-async function getUploadUrl (fileType, key) {
-    const params = {
-        Bucket: 'ghm-gallery',
-        Key: key, //the file directory in s3
-        Expires: 60,
-        ContentType: fileType, //pdf 
-        ACL: 'public-read'
-    }
-
-    try {
-        const url = await new Promise((resolve, reject) => {
-            s3.getSignedUrl('putObject', params, function (err, url) {
-                if (err) {
-                    reject(err)
-                }
-                resolve(url)
-            })
-        })
-
-        return url
-    } catch (err) {
-        console.error('s3 putObject,  get signedUrl failed')
-        throw err
-    }
-}

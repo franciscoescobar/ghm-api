@@ -47,13 +47,13 @@ exports.createPost = async (req, res, next) => {
     error.statusCode = 422;
     throw error;
   }
+  console.log(req.body.userId);
   const name = req.body.name;
   const tags = JSON.parse(req.body.tags);
   const src = req.file.location;
   const newUrl = await getDownloadUrl(src);
   const lowSrc = await reduceQuality(newUrl, req.file.key);
   const newLowSrc = await getDownloadUrl(lowSrc);
-
 
   const post = new Post({
     name,
@@ -64,12 +64,12 @@ exports.createPost = async (req, res, next) => {
     tags
   });
   try {
-    // const user = User.findById(req.userId);
-    // if (user.role !== "admin") {
-    //   const error = new Error("You are not an administrator");
-    //   error.statusCode = 401;
-    //   throw error;
-    // }
+    const user = await User.findById(req.body.userId);
+    if (user.role !== "admin") {
+      const error = new Error("You are not an administrator");
+      error.statusCode = 401;
+      throw error;
+    }
     await post.save();
     res.status(201).json({
       message: "Post created successfully!",
