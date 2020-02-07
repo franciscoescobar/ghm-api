@@ -4,7 +4,7 @@ const Post = require("../models/post");
 const User = require("../models/user");
 
 const getDownloadUrl = require("../utils/preSignedUrl");
-const {reduceQuality} = require("../utils/processImage");
+const {reduceQuality, addWatermark} = require("../utils/processImage");
 
 exports.getPosts = async (req, res, next) => {
   const currentPage = req.query.page || 1;
@@ -17,8 +17,12 @@ exports.getPosts = async (req, res, next) => {
       .limit(perPage);
     const newPosts = await Promise.all(
       posts.map(async post => {
-        const newUrl = await getDownloadUrl(post.lowSrc);
-        post.signedLowSrc = newUrl;
+        const newUrl = await getDownloadUrl(post.src);
+        const newLowUrl = await getDownloadUrl(post.lowSrc);
+        const newWatermarkUrl = await getDownloadUrl(post.waterkmarkSrc);
+        post.signedLowSrc = newLowUrl;
+        post.signedSrc = newUrl;
+        post.signedWaterkmarkSrc = newWatermarkUrl;
         return post;
       })
     );
@@ -54,6 +58,8 @@ exports.createPost = async (req, res, next) => {
   const newUrl = await getDownloadUrl(src);
   const lowSrc = await reduceQuality(newUrl, req.file.key);
   const newLowSrc = await getDownloadUrl(lowSrc);
+  const waterkmarkSrc = await addWatermark(newUrl, req.file.key);
+  const signedWaterkmarkSrc = await getDownloadUrl(waterkmarkSrc);
 
   const post = new Post({
     name,
@@ -61,6 +67,8 @@ exports.createPost = async (req, res, next) => {
     signedSrc: newUrl,
     lowSrc: lowSrc,
     signedLowSrc: newLowSrc,
+    waterkmarkSrc: waterkmarkSrc,
+    signedWaterkmarkSrc: signedWaterkmarkSrc,
     tags
   });
   try {

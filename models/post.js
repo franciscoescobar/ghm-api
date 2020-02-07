@@ -23,6 +23,14 @@ const postSchema = new Schema({
         type: String,
         required: false
     },
+    watermarkSrc: {
+        type: String,
+        required: true
+    },
+    signedWatermarkSrc: {
+        type: String,
+        required: false
+    },
     metadata: {
         type: Object,
         required: false
