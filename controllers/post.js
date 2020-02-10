@@ -51,14 +51,13 @@ exports.createPost = async (req, res, next) => {
     error.statusCode = 422;
     throw error;
   }
-  console.log(req.body.userId);
   const name = req.body.name;
   const tags = JSON.parse(req.body.tags);
   const src = req.file.location;
   const newUrl = await getDownloadUrl(src);
   const lowSrc = await reduceQuality(newUrl, req.file.key);
-  const newLowSrc = await getDownloadUrl(lowSrc);
   const waterkmarkSrc = await addWatermark(newUrl, req.file.key);
+  const newLowSrc = await getDownloadUrl(lowSrc);
   const signedWaterkmarkSrc = await getDownloadUrl(waterkmarkSrc);
 
   const post = new Post({
