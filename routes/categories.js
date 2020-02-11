@@ -5,7 +5,7 @@ const isAuth = require("../middlewares/is-auth");
 const router = express.Router();
 
 router.get('/category', categoryController.getCategories);
-router.post('/category',isAuth, categoryController.createCategory);
+router.post('/category', categoryController.createCategory);
 router.patch('/category/:categoryId', categoryController.editCategory);
 router.delete('/category/:categoryId', categoryController.deleteCategory);
 

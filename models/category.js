@@ -11,6 +11,10 @@ const categorySchema = new Schema({
         type: Number,
         required: false
     },
+    selected: {
+        type: Boolean,
+        required: false
+    }
 });
 
 module.exports = mongoose.model('Category', categorySchema);
