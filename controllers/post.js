@@ -17,12 +17,12 @@ exports.getPosts = async (req, res, next) => {
       .limit(perPage);
     const newPosts = await Promise.all(
       posts.map(async post => {
-        // const newUrl = await getDownloadUrl(post.src);
-        // const newLowUrl = await getDownloadUrl(post.lowSrc);
-        // const newWatermarkUrl = await getDownloadUrl(post.waterkmarkSrc);
-        // post.signedLowSrc = newLowUrl;
-        // post.signedSrc = newUrl;
-        // post.signedWaterkmarkSrc = newWatermarkUrl;
+        const newUrl = await getDownloadUrl(post.src);
+        const newLowUrl = await getDownloadUrl(post.lowSrc);
+        const newWatermarkUrl = await getDownloadUrl(post.watermarkSrc);
+        post.signedLowSrc = newLowUrl;
+        post.signedSrc = newUrl;
+        post.signedWatermarkSrc = newWatermarkUrl;
         return post;
       })
     );
@@ -65,10 +65,10 @@ exports.getFilteredPosts = async (req, res, next) => {
       posts.map(async post => {
         const newUrl = await getDownloadUrl(post.src);
         const newLowUrl = await getDownloadUrl(post.lowSrc);
-        // const newWatermarkUrl = await getDownloadUrl(post.waterkmarkSrc);
+        const newWatermarkUrl = await getDownloadUrl(post.watermarkSrc);
         post.signedLowSrc = newLowUrl;
         post.signedSrc = newUrl;
-        // post.signedWaterkmarkSrc = newWatermarkUrl;
+        post.signedWatermarkSrc = newWatermarkUrl;
         return post;
       })
     );
@@ -102,18 +102,17 @@ exports.createPost = async (req, res, next) => {
   const src = req.file.location;
   const newUrl = await getDownloadUrl(src);
   const lowSrc = await reduceQuality(newUrl, req.file.key);
-  const waterkmarkSrc = await addWatermark(newUrl, req.file.key);
+  const watermarkSrc = await addWatermark(newUrl, req.file.key);
   const newLowSrc = await getDownloadUrl(lowSrc);
-  const signedWaterkmarkSrc = await getDownloadUrl(waterkmarkSrc);
-
+  const signedWatermarkSrc = await getDownloadUrl(watermarkSrc);
   const post = new Post({
     name,
     src: src,
     signedSrc: newUrl,
     lowSrc: lowSrc,
     signedLowSrc: newLowSrc,
-    waterkmarkSrc: waterkmarkSrc,
-    signedWaterkmarkSrc: signedWaterkmarkSrc,
+    watermarkSrc: watermarkSrc,
+    signedWatermarkSrc: signedWatermarkSrc,
     tags
   });
   try {
@@ -156,16 +155,16 @@ exports.editPost = async (req, res, next) => {
     }
     const newUrl = await getDownloadUrl(src);
     const lowSrc = await reduceQuality(newUrl, req.file.key);
-    const waterkmarkSrc = await addWatermark(newUrl, req.file.key);
+    const watermarkSrc = await addWatermark(newUrl, req.file.key);
     const newLowSrc = await getDownloadUrl(lowSrc);
-    const signedWaterkmarkSrc = await getDownloadUrl(waterkmarkSrc);
+    const signedWatermarkSrc = await getDownloadUrl(watermarkSrc);
     post.name = name;
     post.src = src;
     post.signedSrc = newUrl;
     post.lowSrc = lowSrc;
     post.signedLowSrc = newLowSrc;
-    post.waterkmarkSrc = waterkmarkSrc;
-    post.signedWaterkmarkSrc = signedWaterkmarkSrc;
+    post.watermarkSrc = watermarkSrc;
+    post.signedWatermarkSrc = signedWatermarkSrc;
     post.tags = tags;
     
     await post.save();

@@ -53,7 +53,7 @@ exports.editCategory = async (req, res, next) => {
     error.statusCode = 422;
     throw error;  
   }
-  const categoryId = req.body.categoryId;
+  const categoryId = req.params.categoryId;
   const categoryName = req.body.name;
   try {
     const category = Category.findById(categoryId);
@@ -83,8 +83,8 @@ exports.deleteCategory = async (req, res, next) => {
     const error = new Error('Validation failed, entered data is incorrect');
     error.statusCode = 422;
     throw error;  
-  }
-  const categoryId = req.body.categoryId;
+  }  
+  const categoryId = req.params.categoryId;
   try {
     const category = Category.findById(categoryId);
     if(!category) {

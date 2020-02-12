@@ -19,7 +19,7 @@ const reduceQuality = (imageUrl, imageName) => {
         })
         .then(() => {
             fs.readFile(`images-lowres/${imageName}`, (error, fileContent) => {
-                var base64data = new Buffer(fileContent, 'binary');
+                var base64data = new Buffer.from(fileContent, 'binary');
 
                 const params = {
                     Bucket: 'ghm-gallery',
@@ -54,53 +54,54 @@ const reduceQuality = (imageUrl, imageName) => {
 }
 const addWatermark = async (imageUrl, imageName) => {
     const LOGO = "https://upload.wikimedia.org/wikipedia/en/thumb/9/9f/Australian_Defence_Force_Academy_coat_of_arms.svg/1200px-Australian_Defence_Force_Academy_coat_of_arms.svg.png";
-    const LOGO_MARGIN_PERCENTAGE = 5;
     try {
         const [image, logo] = await Promise.all([
             Jimp.read(imageUrl),
             Jimp.read(LOGO)
         ])
         image   
-            .composite(logo,0,0, [
+            .composite(logo,100,0, [
                 {
                     mode: Jimp.BLEND_SOURCE_OVER,
                     opacityDest: 1,
                     opacitySource: 0.5
                 }
             ]);
-        await image.write(`watermarked/${imageName}`); // save
+        await image.write(`watermarked/${imageName}`, () => {
 
-        fs.readFile(`watermarked/${imageName}`, (error, fileContent) => {
-            var base64data = new Buffer(fileContent, 'binary');
-
-            const params = {
-                Bucket: 'ghm-gallery',
-                Key: `water-${imageName}`, // File name you want to save as in S3
-                Body: base64data,
-                Metadata: {
-                    'Content-Type': "image/jpeg"
-                }
-            };
-            // Uploading files to the bucket
-            s3.upload(params, function(err, data) {
-                if (err) {
-                    throw err;
-                }
-                console.log(`File uploaded successfully. ${data.Location}`);
-                fs.unlink(`watermarked/${imageName}`, (err) => {
-                    if (err) {
-                    console.error(err)
-                    return
+            fs.readFile(`watermarked/${imageName}`, (error, fileContent) => {
+                var base64data = new Buffer.from(fileContent, 'binary');
+    
+                const params = {
+                    Bucket: 'ghm-gallery',
+                    Key: `water-${imageName}`, // File name you want to save as in S3
+                    Body: base64data,
+                    Metadata: {
+                        'Content-Type': "image/jpeg"
                     }
-                    console.log("Local image deleted successfully");
-                    //file removed
+                };
+                // Uploading files to the bucket
+                s3.upload(params, function(err, data) {
+                    if (err) {
+                        throw err;
+                    }
+                    console.log(`File uploaded successfully. ${data.Location}`);
+                    fs.unlink(`watermarked/${imageName}`, (err) => {
+                        if (err) {
+                        console.error(err)
+                        return
+                        }
+                        console.log("Local image deleted successfully");
+                        return `water-${imageName}`;
+                        //file removed
+                    });
                 });
-            });
+            }); // save
         });
     }
     catch(err) {
         console.error(err);
-    };
+    }
     return `water-${imageName}`;
 }
 

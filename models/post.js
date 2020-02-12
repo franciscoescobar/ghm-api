@@ -25,7 +25,7 @@ const postSchema = new Schema({
     },
     watermarkSrc: {
         type: String,
-        required: false
+        required: true
     },
     signedWatermarkSrc: {
         type: String,
