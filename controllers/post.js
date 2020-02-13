@@ -4,7 +4,7 @@ const User = require("../models/user");
 const { validationResult } = require("express-validator");
 
 const getDownloadUrl = require("../utils/preSignedUrl");
-const {reduceQuality, addWatermark} = require("../utils/processImage");
+const { reduceQuality, addWatermark } = require("../utils/processImage");
 
 exports.getPosts = async (req, res, next) => {
   const currentPage = req.query.page || 1;
@@ -31,7 +31,6 @@ exports.getPosts = async (req, res, next) => {
       posts: newPosts,
       totalItems
     });
-
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -49,13 +48,14 @@ exports.getFilteredPosts = async (req, res, next) => {
   try {
     let totalItems;
     let posts;
-    if(categoriesIds.length > 0){
-      totalItems = await Post.find({ tags: {$all: categoriesIds }}).countDocuments();
-      posts = await Post.find( { tags: {$all: categoriesIds }} )
+    if (categoriesIds.length > 0) {
+      totalItems = await Post.find({
+        tags: { $all: categoriesIds }
+      }).countDocuments();
+      posts = await Post.find({ tags: { $all: categoriesIds } })
         .skip((currentPage - 1) * perPage)
         .limit(perPage);
-    }
-    else {
+    } else {
       totalItems = await Post.find().countDocuments();
       posts = await Post.find()
         .skip((currentPage - 1) * perPage)
@@ -77,7 +77,6 @@ exports.getFilteredPosts = async (req, res, next) => {
       posts: newPosts,
       totalItems
     });
-
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -100,22 +99,22 @@ exports.createPost = async (req, res, next) => {
   const name = req.body.name;
   const tags = JSON.parse(req.body.tags);
   const src = req.file.location;
-  const newUrl = await getDownloadUrl(src);
-  const lowSrc = await reduceQuality(newUrl, req.file.key);
-  const watermarkSrc = await addWatermark(newUrl, req.file.key);
-  const newLowSrc = await getDownloadUrl(lowSrc);
-  const signedWatermarkSrc = await getDownloadUrl(watermarkSrc);
-  const post = new Post({
-    name,
-    src: src,
-    signedSrc: newUrl,
-    lowSrc: lowSrc,
-    signedLowSrc: newLowSrc,
-    watermarkSrc: watermarkSrc,
-    signedWatermarkSrc: signedWatermarkSrc,
-    tags
-  });
   try {
+    const newUrl = await getDownloadUrl(src);
+    const lowSrc = await reduceQuality(newUrl, req.file.key);
+    const watermarkSrc = await addWatermark(newUrl, req.file.key);
+    const newLowSrc = await getDownloadUrl(lowSrc);
+    const signedWatermarkSrc = await getDownloadUrl(watermarkSrc);
+    const post = new Post({
+      name,
+      src: src,
+      signedSrc: newUrl,
+      lowSrc: lowSrc,
+      signedLowSrc: newLowSrc,
+      watermarkSrc: watermarkSrc,
+      signedWatermarkSrc: signedWatermarkSrc,
+      tags
+    });
     // const user = await User.findById(req.body.userId);
     // if (user.role !== "admin") {
     //   const error = new Error("You are not an administrator");
@@ -136,10 +135,10 @@ exports.createPost = async (req, res, next) => {
 };
 exports.editPost = async (req, res, next) => {
   const errors = validationResult(req);
-  if(!errors.isEmpty()) {
-    const error = new Error('Validation failed, entered data is incorrect');
+  if (!errors.isEmpty()) {
+    const error = new Error("Validation failed, entered data is incorrect");
     error.statusCode = 422;
-    throw error;  
+    throw error;
   }
   const postId = req.body.postId;
   const name = req.body.name;
@@ -148,8 +147,8 @@ exports.editPost = async (req, res, next) => {
 
   try {
     const post = Post.findById(postId);
-    if(!post) {
-      const error = new Error('Could not found post')
+    if (!post) {
+      const error = new Error("Could not found post");
       error.statusCode = 404;
       throw error;
     }
@@ -166,44 +165,40 @@ exports.editPost = async (req, res, next) => {
     post.watermarkSrc = watermarkSrc;
     post.signedWatermarkSrc = signedWatermarkSrc;
     post.tags = tags;
-    
+
     await post.save();
-    res.status(200).json(
-      {
-        message: "Category updated", 
-        post
-      }
-    );
+    res.status(200).json({
+      message: "Category updated",
+      post
+    });
   } catch (err) {
-    if(!err.statusCode) {
+    if (!err.statusCode) {
       err.statusCode = 500;
     }
     next();
   }
 };
-exports.deletePost = async(req, res, next) => {
+exports.deletePost = async (req, res, next) => {
   const errors = validationResult(req);
-  if(!errors.isEmpty()) {
-    const error = new Error('Validation failed, entered data is incorrect');
+  if (!errors.isEmpty()) {
+    const error = new Error("Validation failed, entered data is incorrect");
     error.statusCode = 422;
-    throw error;  
+    throw error;
   }
   const postId = req.body.postId;
   try {
     const post = Post.findById(postId);
-    if(!post) {
-      const error = new Error('Could not found post')
+    if (!post) {
+      const error = new Error("Could not found post");
       error.statusCode = 404;
       throw error;
     }
     await Post.findByIdAndRemove(postId);
-    res.status(200).json(
-      {
-        message: "Post deleted successfully"
-      }
-    );
+    res.status(200).json({
+      message: "Post deleted successfully"
+    });
   } catch (err) {
-    if(!err.statusCode) {
+    if (!err.statusCode) {
       err.statusCode = 500;
     }
     next();

@@ -21,16 +21,18 @@ app.use((req, res, next) => {
   res.setHeader(
     "Access-Control-Allow-Methods",
     "OPTIONS, GET, POST, PUT, PATCH, DELETE"
-    );
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    next();
-  });
-app.use('/exported-images', express.static(path.join(__dirname, 'images-lowres')));
+  );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
+app.use(
+  "/exported-images",
+  express.static(path.join(__dirname, "images-lowres"))
+);
 
 app.use(authRoutes);
 app.use(postsRoutes);
 app.use(categoriesRoutes);
-
 
 app.use((error, req, res, next) => {
   const status = error.statusCode || 500;
@@ -40,7 +42,11 @@ app.use((error, req, res, next) => {
 });
 mongoose
   .connect(
-    "mongodb+srv://fran:fran937164@cluster0-xdxd0.mongodb.net/ghm-gallery?retryWrites=true&w=majority"
+    "mongodb+srv://fran:fran937164@cluster0-xdxd0.mongodb.net/ghm-gallery?retryWrites=true&w=majority",
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    }
   )
   .then(result => {
     app.listen(port);
