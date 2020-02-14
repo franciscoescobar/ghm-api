@@ -26,7 +26,6 @@ exports.createCategory = async (req, res, next) => {
       name: req.body.name,
       selected: req.body.selected
     });
-    console.log(category);
     try {
         // const user = User.findById(req.userId);
         // if (user.role !== "admin") {
@@ -54,22 +53,21 @@ exports.editCategory = async (req, res, next) => {
     throw error;  
   }
   const categoryId = req.params.categoryId;
-  const categoryName = req.body.name;
+  const categoryName = req.params.categoryName;
   try {
-    const category = Category.findById(categoryId);
-    if(!category) {
-      const error = new Error('Could not found category')
-      error.statusCode = 404;
-      throw error;
-    }
-    category.name = categoryName;
-    await category.save();
-    res.status(200).json(
-      {
-        message: "Category updated", 
-        category
+    Category.findByIdAndUpdate(categoryId, {name: categoryName }, (err, category) => {
+      if(!category) {
+        const error = new Error('Could not found category')
+        error.statusCode = 404;
+        throw error;
       }
-    );
+      res.status(200).json(
+        {
+          message: "Category updated", 
+          category
+        }
+      );
+    })
   } catch (err) {
     if(!err.statusCode) {
       err.statusCode = 500;
@@ -86,18 +84,18 @@ exports.deleteCategory = async (req, res, next) => {
   }  
   const categoryId = req.params.categoryId;
   try {
-    const category = Category.findById(categoryId);
-    if(!category) {
-      const error = new Error('Could not found category')
-      error.statusCode = 404;
-      throw error;
-    }
-    await Category.findByIdAndRemove(categoryId);;
-    res.status(200).json(
-      {
-        message: "Category deleted successfully"
+    Category.findByIdAndRemove(categoryId, (err, category) => {
+      if(!category) {
+        const error = new Error('Could not found category')
+        error.statusCode = 404;
+        throw error;
       }
-    );
+      res.status(200).json(
+        {
+          message: "Category deleted successfully"
+        }
+      );
+    });
   } catch (err) {
     if(!err.statusCode) {
       err.statusCode = 500;

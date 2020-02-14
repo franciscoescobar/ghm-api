@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const path = require("path");
 const helmet = require("helmet");
+const cors = require("cors");
 
 const authRoutes = require("./routes/auth");
 const postsRoutes = require("./routes/posts");
@@ -16,15 +17,7 @@ const app = express();
 app.use(helmet());
 app.use(bodyParser.json()); // application/json
 
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "OPTIONS, GET, POST, PUT, PATCH, DELETE"
-  );
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  next();
-});
+app.use(cors());
 app.use(
   "/exported-images",
   express.static(path.join(__dirname, "images-lowres"))
@@ -45,7 +38,8 @@ mongoose
     "mongodb+srv://fran:fran937164@cluster0-xdxd0.mongodb.net/ghm-gallery?retryWrites=true&w=majority",
     {
       useNewUrlParser: true,
-      useUnifiedTopology: true
+      useUnifiedTopology: true,
+      useFindAndModify: false
     }
   )
   .then(result => {

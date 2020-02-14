@@ -58,7 +58,7 @@ const addWatermark = async (imageUrl, imageName) => {
       Jimp.read(imageUrl),
       Jimp.read(LOGO)
     ]);
-    image.composite(logo, 100, 0, [
+    image.composite(logo, 0, 0, [
       {
         mode: Jimp.BLEND_SOURCE_OVER,
         opacityDest: 1,

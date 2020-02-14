@@ -8,6 +8,8 @@ const router = express.Router();
 
 router.get("/posts", postController.getPosts);
 
+router.get("/post/:postId", postController.getPost);
+
 router.put("/posts", postController.getFilteredPosts);
   
 router.post("/post", upload.single('image'), postController.createPost);
