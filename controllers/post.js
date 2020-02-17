@@ -8,11 +8,11 @@ const { reduceQuality, addWatermark } = require("../utils/processImage");
 
 exports.getPosts = async (req, res, next) => {
   const currentPage = req.query.page || 1;
-  const perPage = 5;
+  const perPage = 4;
   try {
     const totalItems = await Post.find().countDocuments();
     const posts = await Post.find()
-      .skip((currentPage - 1) * perPage)
+      .skip((Number(currentPage) - 1) * perPage)
       .limit(perPage);
 
     const newPosts = await Promise.all(
@@ -26,7 +26,7 @@ exports.getPosts = async (req, res, next) => {
       message: "Posts fetched successfully",
       posts: newPosts,
       totalItems,
-      page: currentPage
+      page: Number(currentPage)
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -67,7 +67,7 @@ exports.getPost = async (req, res, next) => {
 } 
 exports.getFilteredPosts = async (req, res, next) => {
   const currentPage = req.query.page || 1;
-  const perPage = 5;
+  const perPage = 4;
   const categoriesIds = req.body.map(category => {
     return category._id;
   });
@@ -82,13 +82,13 @@ exports.getFilteredPosts = async (req, res, next) => {
         tags: { $all: categoriesIds }
       }).countDocuments();
       posts = await Post.find({ tags: { $all: categoriesIds } })
-        .skip((currentPage - 1) * perPage)
+        .skip((Number(currentPage) - 1) * perPage)
         .limit(perPage);
     } else {
       filteredTags = 0;
       totalItems = await Post.find().countDocuments();
       posts = await Post.find()
-        .skip((currentPage - 1) * perPage)
+        .skip((Number(currentPage) - 1) * perPage)
         .limit(perPage);
     }
     const newPosts = await Promise.all(
@@ -103,7 +103,7 @@ exports.getFilteredPosts = async (req, res, next) => {
       posts: newPosts,
       totalItems,
       filteredTags,
-      page: currentPage
+      page: Number(currentPage)
     });
   } catch (err) {
     if (!err.statusCode) {
