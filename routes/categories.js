@@ -11,9 +11,7 @@ router.post('/category', [
     body("name").isLength({ min: 3})
 ], categoryController.createCategory);
 
-router.patch('/category/:categoryName/:categoryId', [
-    body("name").isLength({ min: 3})
-], categoryController.editCategory);
+router.patch('/category/:categoryName/:categoryId', categoryController.editCategory);
 
 router.delete('/category/:categoryId', categoryController.deleteCategory);
 

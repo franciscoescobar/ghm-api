@@ -7,7 +7,6 @@ const getDownloadUrl = require("../utils/preSignedUrl");
 const { reduceQuality, addWatermark } = require("../utils/processImage");
 
 exports.getPosts = async (req, res, next) => {
-
   const currentPage = req.query.page || 1;
   const perPage = 5;
   try {
@@ -122,6 +121,9 @@ exports.createPost = async (req, res, next) => {
   const name = req.body.name;
   const tags = JSON.parse(req.body.tags);
   const src = req.file.location;
+  const size = req.file.size
+  const sizeInMB = (size / (1024*1024)).toFixed(2);
+  console.log(sizeInMB);
   try {
     const newUrl = await getDownloadUrl(src);
     const lowSrc = await reduceQuality(newUrl, req.file.key);
@@ -134,6 +136,7 @@ exports.createPost = async (req, res, next) => {
       lowSrc: lowSrc,
       signedLowSrc: newLowSrc,
       watermarkSrc: watermarkSrc,
+      size: sizeInMB,
       tags
     });
     // const user = await User.findById(req.body.userId);

@@ -11,6 +11,10 @@ const postSchema = new Schema({
         type: String,
         required: true
     },
+    size: {
+        type: Number,
+        required: true
+    },
     signedSrc: {
         type: String,
         required: false,
