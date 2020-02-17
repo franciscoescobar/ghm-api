@@ -25,7 +25,8 @@ exports.getPosts = async (req, res, next) => {
     res.status(200).json({
       message: "Posts fetched successfully",
       posts: newPosts,
-      totalItems
+      totalItems,
+      page: currentPage
     });
   } catch (err) {
     if (!err.statusCode) {
@@ -74,7 +75,9 @@ exports.getFilteredPosts = async (req, res, next) => {
   try {
     let totalItems;
     let posts;
+    let filteredTags;
     if (categoriesIds.length > 0) {
+      filteredTags = categoriesIds.length;
       totalItems = await Post.find({
         tags: { $all: categoriesIds }
       }).countDocuments();
@@ -82,6 +85,7 @@ exports.getFilteredPosts = async (req, res, next) => {
         .skip((currentPage - 1) * perPage)
         .limit(perPage);
     } else {
+      filteredTags = 0;
       totalItems = await Post.find().countDocuments();
       posts = await Post.find()
         .skip((currentPage - 1) * perPage)
@@ -97,7 +101,9 @@ exports.getFilteredPosts = async (req, res, next) => {
     res.status(200).json({
       message: "Posts fetched successfully",
       posts: newPosts,
-      totalItems
+      totalItems,
+      filteredTags,
+      page: currentPage
     });
   } catch (err) {
     if (!err.statusCode) {
