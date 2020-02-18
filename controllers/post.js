@@ -227,7 +227,7 @@ exports.deletePost = async (req, res, next) => {
     error.statusCode = 422;
     throw error;
   }
-  const postId = req.body.postId;
+  const postId = req.params.postId;
   try {
     const post = Post.findById(postId);
     if (!post) {
