@@ -129,7 +129,7 @@ exports.createPost = async (req, res, next) => {
   const src = req.file.location;
   const size = req.file.size
   const sizeInMB = (size / (1024*1024)).toFixed(2);
-  console.log(sizeInMB);
+
   try {
     const newUrl = await getDownloadUrl(src);
     const lowSrc = await reduceQuality(newUrl, req.file.key);
@@ -170,36 +170,48 @@ exports.editPost = async (req, res, next) => {
     error.statusCode = 422;
     throw error;
   }
-  const postId = req.body.postId;
+  const postId = req.params.postId;
   const name = req.body.name;
   const tags = JSON.parse(req.body.tags);
-  const src = req.file.location;
-
   try {
-    const post = Post.findById(postId);
-    if (!post) {
-      const error = new Error("Could not found post");
-      error.statusCode = 404;
-      throw error;
-    }
-    const newUrl = await getDownloadUrl(src);
-    const lowSrc = await reduceQuality(newUrl, req.file.key);
-    const watermarkSrc = await addWatermark(newUrl, req.file.key);
-    const newLowSrc = await getDownloadUrl(lowSrc);
-    const signedWatermarkSrc = await getDownloadUrl(watermarkSrc);
-    post.name = name;
-    post.src = src;
-    post.signedSrc = newUrl;
-    post.lowSrc = lowSrc;
-    post.signedLowSrc = newLowSrc;
-    post.watermarkSrc = watermarkSrc;
-    post.signedWatermarkSrc = signedWatermarkSrc;
-    post.tags = tags;
-
-    await post.save();
-    res.status(200).json({
-      message: "Category updated",
-      post
+    await Post.findById(postId, async (err, doc) => {
+      if (err) {
+        const error = new Error("Could not found post");
+        error.statusCode = 404;
+        throw error;
+      }
+      doc.name = name;
+      doc.tags = tags;
+      if(req.file !== doc.file){
+        const src = req.file.location;
+        const size = req.file.size;
+        const sizeInMB = (size / (1024*1024)).toFixed(2);
+        const newUrl = await getDownloadUrl(src);
+        const lowSrc = await reduceQuality(newUrl, req.file.key);
+        const watermarkSrc = await addWatermark(newUrl, req.file.key);
+        const newLowSrc = await getDownloadUrl(lowSrc);
+        const signedWatermarkSrc = await getDownloadUrl(watermarkSrc);
+        doc.src = src;
+        doc.signedSrc = newUrl;
+        doc.lowSrc = lowSrc;
+        doc.signedLowSrc = newLowSrc;
+        doc.watermarkSrc = watermarkSrc;
+        doc.signedWatermarkSrc = signedWatermarkSrc;
+        doc.size = sizeInMB;
+      }
+      else {
+        const newUrl = await getDownloadUrl(doc.src);
+        const newLowSrc = await getDownloadUrl(doc.lowSrc);
+        const signedWatermarkSrc = await getDownloadUrl(doc.watermarkSrc);
+        doc.signedSrc = newUrl;
+        doc.signedLowSrc = newLowSrc;
+        doc.signedWatermarkSrc = signedWatermarkSrc;
+      }
+      await doc.save();
+      res.status(200).json({
+        message: "Category updated",
+        doc
+      });
     });
   } catch (err) {
     if (!err.statusCode) {
