@@ -8,7 +8,7 @@ const { reduceQuality, addWatermark } = require("../utils/processImage");
 
 exports.getPosts = async (req, res, next) => {
   const currentPage = req.query.page || 1;
-  const perPage = 10;
+  const perPage = 9;
   try {
     const totalItems = await Post.find().countDocuments();
     const posts = await Post.find()
@@ -67,7 +67,7 @@ exports.getPost = async (req, res, next) => {
 } 
 exports.getFilteredPosts = async (req, res, next) => {
   const currentPage = req.query.page || 1;
-  const perPage = 10;
+  const perPage = 9;
   const categoriesIds = req.body.map(category => {
     return category._id;
   });

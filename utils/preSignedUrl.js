@@ -22,7 +22,7 @@ async function getDownloadUrl (key) {
     const params = {
         Bucket: 'ghm-gallery',
         Key: realKey, //the directory in S3
-        Expires: 60
+        Expires: 3600
     }
 
     try {
