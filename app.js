@@ -35,7 +35,7 @@ app.use((error, req, res, next) => {
 });
 mongoose
   .connect(
-    "mongodb+srv://fran:fran937164@cluster0-xdxd0.mongodb.net/ghm-gallery?retryWrites=true&w=majority",
+    `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-xdxd0.mongodb.net/${process.env.MONGO_DATABASE}?retryWrites=true&w=majority`,
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,

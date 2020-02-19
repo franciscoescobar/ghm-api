@@ -2,6 +2,9 @@
   "name": "ghm-api",
   "version": "1.0.0",
   "description": "GHM-gallery API",
+  "engines": {
+    "node": "12.9.1"
+  },
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

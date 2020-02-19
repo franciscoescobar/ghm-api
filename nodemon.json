@@ -1,0 +1,7 @@
+{
+    "env": {
+        "MONGO_USER": "fran",
+        "MONGO_PASSWORD": "fran937164",
+        "MONGO_DATABASE": "ghm-gallery"
+    }
+}

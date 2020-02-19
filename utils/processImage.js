@@ -13,7 +13,7 @@ const reduceQuality = (imageUrl, imageName) => {
   Jimp.read(imageUrl)
     .then(image => {
       return image
-        .quality(60) // set JPEG quality
+        .quality(40) // set JPEG quality
         .resize(475, Jimp.AUTO) // set JPEG quality
         .write(`images-lowres/${imageName}`, () => {
           fs.readFile(`images-lowres/${imageName}`, (error, fileContent) => {
@@ -58,13 +58,23 @@ const addWatermark = async (imageUrl, imageName) => {
       Jimp.read(imageUrl),
       Jimp.read(LOGO)
     ]);
-    image.composite(logo, 0, 0, [
-      {
-        mode: Jimp.BLEND_SOURCE_OVER,
-        opacityDest: 1,
-        opacitySource: 0.5
-      }
-    ]);
+    logo.resize(image.bitmap.width / 5, Jimp.AUTO);
+
+    const xMargin = (image.bitmap.width * LOGO_MARGIN_PERCENTAGE) / 100;
+    const yMargin = (image.bitmap.width * LOGO_MARGIN_PERCENTAGE) / 100;
+  
+    const X = image.bitmap.width - logo.bitmap.width - xMargin;
+    const Y = image.bitmap.height - logo.bitmap.height - yMargin;
+
+    image
+      .quality(60)
+      .composite(logo, X, Y, [
+        {
+          mode: Jimp.BLEND_SOURCE_OVER,
+          opacityDest: 1,
+          opacitySource: 0.5
+        }
+      ]);
     await image.write(`watermarked/${imageName}`, () => {
       fs.readFile(`watermarked/${imageName}`, (error, fileContent) => {
         var base64data = new Buffer.from(fileContent, "binary");
