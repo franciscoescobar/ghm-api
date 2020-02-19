@@ -53,7 +53,8 @@ const reduceQuality = (imageUrl, imageName) => {
 const addWatermark = async (imageUrl, imageName) => {
   const LOGO =
     "https://upload.wikimedia.org/wikipedia/en/thumb/9/9f/Australian_Defence_Force_Academy_coat_of_arms.svg/1200px-Australian_Defence_Force_Academy_coat_of_arms.svg.png";
-  try {
+  const LOGO_MARGIN_PERCENTAGE = 50;
+    try {
     const [image, logo] = await Promise.all([
       Jimp.read(imageUrl),
       Jimp.read(LOGO)
