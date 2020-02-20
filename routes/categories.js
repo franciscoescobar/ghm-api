@@ -8,11 +8,12 @@ const router = express.Router();
 router.get('/category', categoryController.getCategories);
 
 router.post('/category', [
+    isAuth,
     body("name").isLength({ min: 3})
 ], categoryController.createCategory);
 
-router.patch('/category/:categoryName/:categoryId', categoryController.editCategory);
+router.patch('/category/:categoryName/:categoryId', isAuth, categoryController.editCategory);
 
-router.delete('/category/:categoryId', categoryController.deleteCategory);
+router.delete('/category/:categoryId', isAuth, categoryController.deleteCategory);
 
 module.exports = router;
