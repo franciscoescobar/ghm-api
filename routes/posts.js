@@ -12,10 +12,10 @@ router.get("/post/:postId", postController.getPost);
 
 router.put("/posts", postController.getFilteredPosts);
   
-router.post("/post", upload.single('image'), postController.createPost);
+router.post("/post", [isAuth, upload.single('image')], postController.createPost);
 
-router.patch("/post/:postId", upload.single('image'), postController.editPost);
+router.patch("/post/:postId", [isAuth, upload.single('image')], postController.editPost);
 
-router.delete("/post/:postId", postController.deletePost);
+router.delete("/post/:postId", isAuth , postController.deletePost);
 
 module.exports = router;
