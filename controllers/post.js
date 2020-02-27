@@ -7,9 +7,9 @@ const getDownloadUrl = require("../utils/preSignedUrl");
 const { reduceQuality, addWatermark } = require("../utils/processImage");
 
 exports.getPosts = async (req, res, next) => {
-  const currentPage = req.query.page || 1;
-  const perPage = 9;
   try {
+    const currentPage = req.query.page || 1;
+    const perPage = 9;
     const totalItems = await Post.find().countDocuments();
     const posts = await Post.find()
       .skip((Number(currentPage) - 1) * perPage)
@@ -36,9 +36,8 @@ exports.getPosts = async (req, res, next) => {
   }
 };
 exports.getPost = async (req, res, next) => {
-
-  const postId = req.params.postId;
   try {
+    const postId = req.params.postId;
     const post = await Post.findById(postId);
     if(!post) {
       const error = new Error('Could not found post')
@@ -66,13 +65,12 @@ exports.getPost = async (req, res, next) => {
   }
 } 
 exports.getFilteredPosts = async (req, res, next) => {
-  const currentPage = req.query.page || 1;
-  const perPage = 9;
-  const categoriesIds = req.body.map(category => {
-    return category._id;
-  });
-
   try {
+    const currentPage = req.query.page || 1;
+    const perPage = 9;
+    const categoriesIds = req.body.map(category => {
+      return category._id;
+    });
     let totalItems;
     let posts;
     let filteredTags;
@@ -112,25 +110,24 @@ exports.getFilteredPosts = async (req, res, next) => {
     next();
   }
 };
-exports.createPost = async (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    const error = new Error("Validation failed, entered data is incorrect");
-    error.statusCode = 422;
-    throw error;
-  }
-  if (!req.file) {
-    const error = new Error("No image provided");
-    error.statusCode = 422;
-    throw error;
-  }
-  const name = req.body.name;
-  const tags = JSON.parse(req.body.tags);
-  const src = req.file.location;
-  const size = req.file.size
-  const sizeInMB = (size / (1024*1024)).toFixed(2);
-
+exports.createPost = async (req, res, next) => {  
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const error = new Error("Validation failed, entered data is incorrect");
+      error.statusCode = 422;
+      throw error;
+    }
+    if (!req.file) {
+      const error = new Error("No image provided or the image provided is not a jpg, jpeg, png or gif");
+      error.statusCode = 422;
+      throw error;
+    }
+    const name = req.body.name;
+    const tags = JSON.parse(req.body.tags);
+    const src = req.file.location;
+    const size = req.file.size
+    const sizeInMB = (size / (1024*1024)).toFixed(2);
     const newUrl = await getDownloadUrl(src);
     const lowSrc = await reduceQuality(newUrl, req.file.key);
     const watermarkSrc = await addWatermark(newUrl, req.file.key);

@@ -12,9 +12,10 @@ const s3 = new aws.S3({});
 
 const fileFilter = (req, file, cb) => {
     if (
-        file === "image/png" ||
-        file === "image/jpg" ||
-        file === "image/jpeg" 
+        file.mimetype === "image/png" ||
+        file.mimetype === "image/jpg" ||
+        file.mimetype === "image/jpeg" ||
+        file.mimetype === "image/gif"
     ) {
         cb(null, true);
     } else {
@@ -28,12 +29,14 @@ const upload = multer({
         bucket: "ghm-gallery",
         contentType: multerS3.AUTO_CONTENT_TYPE,
         metadata: (req ,file, cb) => {
+            console.log(file);
             cb(null, {fieldName: file.fieldname});
         },
         key:(req, file, cb) => {
             cb(null, file.originalname);
         }
     }),
+    fileFilter
 });
 
 module.exports.upload = upload;
