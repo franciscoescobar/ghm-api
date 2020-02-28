@@ -39,6 +39,25 @@ exports.login = async (req, res, next) => {
         next(err);
     }
 }
+exports.getUserRole = async (req, res, next) => {
+    const userId = req.params.userId;
+    try {
+        const user = await User.findById(userId);
+        if(!user) {
+            const error = new Error("A user with this id could not be found");
+            error.statusCode = 401;
+            throw error;
+        }
+
+        res.status(200).json(user.role);
+    }
+    catch(err) {
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+}
 exports.signup = async (req, res, next) => {
     try {
         const errors = validationResult(req);

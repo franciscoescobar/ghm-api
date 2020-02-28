@@ -5,6 +5,7 @@ const User = require("../models/user");
 const router = express.Router();
 
 router.post('/login', authController.login);
+router.get('/user/:userId', authController.getUserRole);
 router.put('/signup', [
     body('email')
         .isEmail()
