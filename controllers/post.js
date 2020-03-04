@@ -84,9 +84,9 @@ exports.getFilteredPosts = async (req, res, next) => {
     if (categoriesIds.length > 0) {
       filteredTags = categoriesIds.length;
       totalItems = await Post.find({
-        tags: { $all: categoriesIds }
+        categories: { $all: categoriesIds }
       }).countDocuments();
-      posts = await Post.find({ tags: { $all: categoriesIds } })
+      posts = await Post.find({ categories: { $all: categoriesIds } })
         .skip((Number(currentPage) - 1) * perPage)
         .limit(perPage);
     } else {
@@ -131,7 +131,7 @@ exports.createPost = async (req, res, next) => {
       throw error;
     }
     const name = req.body.name;
-    const tags = JSON.parse(req.body.tags);
+    const categories = JSON.parse(req.body.categories);
     let posts = [];
     const uploadPost = async (file) => {
       const src = file.location;
@@ -143,7 +143,7 @@ exports.createPost = async (req, res, next) => {
       const newLowSrc = await getDownloadUrl(lowSrc);
       const post = new Post({
         name,
-        tags,
+        categories,
         src: src,
         signedSrc: newUrl,
         lowSrc: lowSrc,
