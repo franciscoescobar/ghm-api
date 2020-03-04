@@ -134,11 +134,6 @@ exports.createPost = async (req, res, next) => {
     const tags = JSON.parse(req.body.tags);
     let posts = [];
     const uploadPost = async (file) => {
-      if (file.location.includes(".com/")) {
-        const error = new Error("Image can't have a .com/ on the file name");
-        error.statusCode = 422;
-        throw error;
-      }
       const src = file.location;
       const size = file.size
       const sizeInMB = (size / (1024*1024)).toFixed(2);
@@ -158,20 +153,12 @@ exports.createPost = async (req, res, next) => {
       });
       posts.push(post);
       await post.save();
-      // const user = await User.findById(req.body.userId);
-      // if (user.role !== "admin") {
-      //   const error = new Error("You are not an administrator");
-      //   error.statusCode = 401;
-      //   throw error;
-      // }
-      
     }
     
     Promise.all(
       req.files.map(file => uploadPost(file))
       )
       .then(result => {
-        console.log("After map");
         res.status(201).json({
           message: "Post created successfully!",
           post: posts
@@ -219,6 +206,8 @@ exports.editPost = async (req, res, next) => {
         doc.watermarkSrc = watermarkSrc;
         doc.signedWatermarkSrc = signedWatermarkSrc;
         doc.size = sizeInMB;
+        console.log(doc.src);
+        deleteImageFromS3(doc.src);
       }
       else {
         const newUrl = await getDownloadUrl(doc.src);
@@ -284,7 +273,5 @@ const deleteImageFromS3 = (key) => {
   }, (err, data) =>{ 
     if (err)
     console.log(err);
-    else
-    console.log(data);
   });
 }

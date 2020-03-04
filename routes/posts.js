@@ -14,7 +14,7 @@ router.put("/posts", postController.getFilteredPosts);
   
 router.post("/post", [isAuth, upload.array('image', 20)], postController.createPost);
 
-router.patch("/post/:postId", [isAuth, upload.array('image')], postController.editPost);
+router.patch("/post/:postId", [isAuth, upload.single('image')], postController.editPost);
 
 router.delete("/post/:postId", isAuth , postController.deletePost);
 

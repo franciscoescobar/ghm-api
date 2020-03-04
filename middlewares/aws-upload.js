@@ -16,8 +16,14 @@ const fileFilter = (req, file, cb) => {
         file.mimetype === "image/jpg" ||
         file.mimetype === "image/jpeg" ||
         file.mimetype === "image/gif"
-    ) {
-        cb(null, true);
+    ) 
+    {    
+        if (!file.originalname.includes(".com/")) {
+            cb(null, true);
+        }
+        else {
+            cb(null, false);
+        }
     } else {
         cb(null, false);
     }
