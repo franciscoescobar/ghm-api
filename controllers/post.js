@@ -9,7 +9,7 @@ const { reduceQuality, addWatermark } = require("../utils/processImage");
 exports.getPosts = async (req, res, next) => {
   try {
     const currentPage = req.query.page || 1;
-    const perPage = 9;
+    const perPage = 20;
     const totalItems = await Post.find().countDocuments();
     const posts = await Post.find()
       .skip((Number(currentPage) - 1) * perPage)
@@ -118,41 +118,53 @@ exports.createPost = async (req, res, next) => {
       error.statusCode = 422;
       throw error;
     }
-    if (!req.file) {
-      const error = new Error("No image provided or the image provided is not a jpg, jpeg, png or gif");
+    if (!req.files) {
+      const error = new Error("No images provided or the images provided are not a jpg, jpeg, png or gif");
       error.statusCode = 422;
       throw error;
     }
     const name = req.body.name;
     const tags = JSON.parse(req.body.tags);
-    const src = req.file.location;
-    const size = req.file.size
-    const sizeInMB = (size / (1024*1024)).toFixed(2);
-    const newUrl = await getDownloadUrl(src);
-    const lowSrc = await reduceQuality(newUrl, req.file.key);
-    const watermarkSrc = await addWatermark(newUrl, req.file.key);
-    const newLowSrc = await getDownloadUrl(lowSrc);
-    const post = new Post({
-      name,
-      src: src,
-      signedSrc: newUrl,
-      lowSrc: lowSrc,
-      signedLowSrc: newLowSrc,
-      watermarkSrc: watermarkSrc,
-      size: sizeInMB,
-      tags
-    });
-    // const user = await User.findById(req.body.userId);
-    // if (user.role !== "admin") {
-    //   const error = new Error("You are not an administrator");
-    //   error.statusCode = 401;
-    //   throw error;
-    // }
-    await post.save();
-    res.status(201).json({
-      message: "Post created successfully!",
-      post: post
-    });
+    let posts = [];
+    const uploadPost = async (file) => {
+      const src = file.location;
+      const size = file.size
+      const sizeInMB = (size / (1024*1024)).toFixed(2);
+      const newUrl = await getDownloadUrl(src);
+      const lowSrc = await reduceQuality(newUrl, file.key);
+      const watermarkSrc = await addWatermark(newUrl, file.key);
+      const newLowSrc = await getDownloadUrl(lowSrc);
+      const post = new Post({
+        name,
+        tags,
+        src: src,
+        signedSrc: newUrl,
+        lowSrc: lowSrc,
+        signedLowSrc: newLowSrc,
+        watermarkSrc: watermarkSrc,
+        size: sizeInMB
+      });
+      posts.push(post);
+      await post.save();
+      // const user = await User.findById(req.body.userId);
+      // if (user.role !== "admin") {
+      //   const error = new Error("You are not an administrator");
+      //   error.statusCode = 401;
+      //   throw error;
+      // }
+      
+    }
+    
+    Promise.all(
+      req.files.map(file => uploadPost(file))
+      )
+      .then(result => {
+        console.log("After map");
+        res.status(201).json({
+          message: "Post created successfully!",
+          post: posts
+        });
+      })
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
