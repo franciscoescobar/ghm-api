@@ -15,6 +15,32 @@ const postSchema = new Schema({
         type: Number,
         required: true
     },
+    pixels: {
+        type: String,
+        required: false,
+    },
+    place: {
+        type: String,
+        required: false,
+    },
+    action: {
+        type: String,
+        required: false,
+    },
+    tags: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Tag',
+            required: false
+        }
+    ],
+    categories: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Category',
+            required: false
+        }
+    ],
     signedSrc: {
         type: String,
         required: false,
@@ -38,14 +64,7 @@ const postSchema = new Schema({
     metadata: {
         type: Object,
         required: false
-    },
-    tags: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'Category',
-            required: false
-        }
-    ]
+    }
 });
 
 module.exports = mongoose.model('Post', postSchema);

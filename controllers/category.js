@@ -1,4 +1,5 @@
 const Category = require("../models/category");
+const Post = require("../models/post");
 const { validationResult } = require("express-validator");
 
 exports.getCategories = async (req, res, next) => {
@@ -90,12 +91,15 @@ exports.deleteCategory = async (req, res, next) => {
         error.statusCode = 404;
         throw error;
       }
+    });
+    const posts = await Post.find().all('categories',[categoryId]);
+    posts.categories.pull(categoryId);
+    await posts.save();
       res.status(200).json(
         {
           message: "Category deleted successfully"
         }
       );
-    });
   } catch (err) {
     if(!err.statusCode) {
       err.statusCode = 500;

@@ -1,6 +1,13 @@
 const Post = require("../models/post");
 const User = require("../models/user");
+const aws = require("aws-sdk");
+aws.config.update({
+  secretAccessKey: "NCGPXTsAlkUT90ccFXPVGzjFFE7Vkx8L4A1NFmiI",
+  accessKeyId: "AKIAZETXKKH3ZBTGVMOJ",
+  region: "us-east-2"
+});
 
+const s3 = new aws.S3({});
 const { validationResult } = require("express-validator");
 
 const getDownloadUrl = require("../utils/preSignedUrl");
@@ -67,7 +74,7 @@ exports.getPost = async (req, res, next) => {
 exports.getFilteredPosts = async (req, res, next) => {
   try {
     const currentPage = req.query.page || 1;
-    const perPage = 9;
+    const perPage = 20;
     const categoriesIds = req.body.map(category => {
       return category._id;
     });
@@ -127,6 +134,11 @@ exports.createPost = async (req, res, next) => {
     const tags = JSON.parse(req.body.tags);
     let posts = [];
     const uploadPost = async (file) => {
+      if (file.location.includes(".com/")) {
+        const error = new Error("Image can't have a .com/ on the file name");
+        error.statusCode = 422;
+        throw error;
+      }
       const src = file.location;
       const size = file.size
       const sizeInMB = (size / (1024*1024)).toFixed(2);
@@ -238,12 +250,14 @@ exports.deletePost = async (req, res, next) => {
   }
   const postId = req.params.postId;
   try {
-    const post = Post.findById(postId);
+    const post = await Post.findById(postId);
     if (!post) {
       const error = new Error("Could not found post");
       error.statusCode = 404;
       throw error;
     }
+    console.log(post.src);
+    deleteImageFromS3(post.src);
     await Post.findByIdAndRemove(postId);
     res.status(200).json({
       message: "Post deleted successfully"
@@ -255,3 +269,22 @@ exports.deletePost = async (req, res, next) => {
     next();
   }
 };
+const deleteImageFromS3 = (key) => {
+  const realKey = key.split('.com/')[1];
+  s3.deleteObjects({
+    Bucket: 'ghm-gallery',
+    Delete: {
+      Objects: [
+        {Key: realKey},
+        {Key: `low-${realKey}`},
+        {Key: `water-${realKey}`}
+      ],
+      Quiet: false
+    }
+  }, (err, data) =>{ 
+    if (err)
+    console.log(err);
+    else
+    console.log(data);
+  });
+}
