@@ -12,7 +12,7 @@ router.get("/post/:postId", postController.getPost);
 
 router.put("/posts", postController.getFilteredPosts);
   
-router.post("/post", [isAuth, upload.array('image', 5)], postController.createPost);
+router.post("/post", [isAuth, upload.array('image', 20)], postController.createPost);
 
 router.patch("/post/:postId", [isAuth, upload.array('image')], postController.editPost);
 
