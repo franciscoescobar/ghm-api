@@ -10,9 +10,7 @@ router.get("/posts", postController.getPosts);
 
 router.get("/post/:postId", postController.getPost);
 
-router.put("/posts", postController.getFilteredPosts);
-
-router.patch("/posts", postController.getSearchedPosts);
+router.patch("/posts", postController.getFilteredPosts);
 
 router.post("/post", [isAuth, upload.array('image', 20)], postController.createPost);
 

@@ -71,11 +71,12 @@ exports.getPost = async (req, res, next) => {
     next();
   }
 }
-exports.getSearchedPosts = async (req, res, next) => {
+exports.getFilteredPosts = async (req, res, next) => {
   try {
     const currentPage = req.query.page || 1;
     const perPage = 20;
     const searchInput = req.body.searchInput;
+    console.log(searchInput)
     if(searchInput.length < 3) {
       const error = new Error('Search need more than 3 characters');
       error.statusCode = 404;
@@ -90,16 +91,22 @@ exports.getSearchedPosts = async (req, res, next) => {
             [
               { 
                 name: 
-                  {
-                    $regex: searchInput,
-                  }
+                {
+                  $regex: searchInput,
+                }
               },
               { 
                 email: 
                 {
                   $regex: searchInput,
                 }
-              } 
+              },
+              {
+                categories:
+                {
+                  name: searchInput
+                }
+              }
             ]
           }
         }])
@@ -131,54 +138,6 @@ exports.getSearchedPosts = async (req, res, next) => {
     next(err);
   }
 }
-exports.getFilteredPosts = async (req, res, next) => {
-  try {
-    const currentPage = req.query.page || 1;
-    const perPage = 20;
-    const categoriesIds = req.body.map(category => {
-      return category._id;
-    });
-    
-    let totalItems;
-    let posts;
-    let filteredTags;
-
-    if (categoriesIds.length > 0) {
-      filteredTags = categoriesIds.length;
-      totalItems = await Post.find({
-        categories: { $all: categoriesIds }
-      }).countDocuments();
-      posts = await Post.find({ categories: { $all: categoriesIds } })
-        .skip((Number(currentPage) - 1) * perPage)
-        .limit(perPage);
-    } else {
-      filteredTags = 0;
-      totalItems = await Post.find().countDocuments();
-      posts = await Post.find()
-        .skip((Number(currentPage) - 1) * perPage)
-        .limit(perPage);
-    }
-    const newPosts = await Promise.all(
-      posts.map(async post => {
-        const newLowUrl = await getDownloadUrl(post.lowSrc);
-        post.signedLowSrc = newLowUrl;
-        return post;
-      })
-    );
-    res.status(200).json({
-      message: "Posts fetched successfully",
-      posts: newPosts,
-      totalItems,
-      filteredTags,
-      page: Number(currentPage)
-    });
-  } catch (err) {
-    if (!err.statusCode) {
-      err.statusCode = 500;
-    }
-    next();
-  }
-};
 exports.createPost = async (req, res, next) => {  
   try {
     const errors = validationResult(req);
