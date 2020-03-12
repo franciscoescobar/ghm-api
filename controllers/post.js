@@ -70,7 +70,67 @@ exports.getPost = async (req, res, next) => {
     }
     next();
   }
-} 
+}
+exports.getSearchedPosts = async (req, res, next) => {
+  try {
+    const currentPage = req.query.page || 1;
+    const perPage = 20;
+    const searchInput = req.body.searchInput;
+    if(searchInput.length < 3) {
+      const error = new Error('Search need more than 3 characters');
+      error.statusCode = 404;
+      throw error;
+    }
+    else {
+      
+      const posts = await Post.aggregate([{
+        $match: 
+          {
+            $or: 
+            [
+              { 
+                name: 
+                  {
+                    $regex: searchInput,
+                  }
+              },
+              { 
+                email: 
+                {
+                  $regex: searchInput,
+                }
+              } 
+            ]
+          }
+        }])
+        .skip((Number(currentPage) - 1) * perPage)
+        .limit(perPage);
+      if(posts.length === 0) {
+        const error = new Error("Could not found any post")
+        error.statusCode = 404;
+        throw error;
+      }
+      const newPosts = await Promise.all(
+          posts.map(async post => {
+            const newLowUrl = await getDownloadUrl(post.lowSrc);
+            post.signedLowSrc = newLowUrl;
+            return post;
+          })
+        );
+      res.status(200).json({
+        posts: newPosts,
+        totalItems: posts.length,
+        page: Number(currentPage)
+      });
+    }
+  }
+  catch (err) {
+    if(!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+}
 exports.getFilteredPosts = async (req, res, next) => {
   try {
     const currentPage = req.query.page || 1;
@@ -78,9 +138,11 @@ exports.getFilteredPosts = async (req, res, next) => {
     const categoriesIds = req.body.map(category => {
       return category._id;
     });
+    
     let totalItems;
     let posts;
     let filteredTags;
+
     if (categoriesIds.length > 0) {
       filteredTags = categoriesIds.length;
       totalItems = await Post.find({
@@ -206,7 +268,6 @@ exports.editPost = async (req, res, next) => {
         doc.watermarkSrc = watermarkSrc;
         doc.signedWatermarkSrc = signedWatermarkSrc;
         doc.size = sizeInMB;
-        console.log(doc.src);
         deleteImageFromS3(doc.src);
       }
       else {
@@ -245,7 +306,6 @@ exports.deletePost = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    console.log(post.src);
     deleteImageFromS3(post.src);
     await Post.findByIdAndRemove(postId);
     res.status(200).json({
